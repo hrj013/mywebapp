@@ -1,8 +1,4 @@
 import streamlit as st
-
-import streamlit as st
-
-import streamlit as st
 from datetime import date
 
 # ==========================================
@@ -587,3 +583,4 @@ st.markdown("""
     Made with 🧋 & a little birthday magic ✨
 </div>
 """, unsafe_allow_html=True)
+
