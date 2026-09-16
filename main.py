@@ -2,268 +2,588 @@ import streamlit as st
 
 import streamlit as st
 
+import streamlit as st
+from datetime import date
+
+# ==========================================
+# 페이지 설정
+# ==========================================
 st.set_page_config(
-    page_title="MBTI 여행처방 🌷",
-    page_icon="🌷",
+    page_title="나의 생일 음료 🧋",
+    page_icon="🎂",
     layout="centered"
 )
 
-# -----------------------------
-# 데이터
-# -----------------------------
-destinations = {
-    "ISTJ": {
-        "emoji": "🏛️",
-        "place": "교토, 일본",
-        "color": "#E8F5E9",
-        "description": "차분하게 계획을 세우고 하나씩 둘러보는 여행",
-        "reason": "정돈된 거리와 전통문화, 예측 가능한 동선이 잘 어울려요.",
-        "tips": ["교토역 → 기요미즈데라 → 기온 코스", "아침 일찍 관광하기", "맛집은 미리 예약하기"],
+# ==========================================
+# 30가지 음료
+# ==========================================
+drinks = [
+    {
+        "emoji": "🍓",
+        "name": "딸기 라떼",
+        "category": "MILK",
+        "description": "달콤한 딸기와 부드러운 우유가 만나는 사랑스러운 한 잔.",
+        "mood": "오늘은 달콤한 위로가 필요한 날 💗",
+        "keyword": "달콤함",
+        "color": "#FFF0F5"
     },
-    "ISFJ": {
-        "emoji": "🌷",
-        "place": "파리, 프랑스",
-        "color": "#FFF0F5",
-        "description": "예쁜 풍경과 따뜻한 분위기를 천천히 즐기는 여행",
-        "reason": "아기자기한 카페와 골목, 예술과 낭만을 편안하게 즐길 수 있어요.",
-        "tips": ["동네 카페에서 여유 즐기기", "센강 산책하기", "작은 미술관 찾아보기"],
+    {
+        "emoji": "🧋",
+        "name": "흑당 버블티",
+        "category": "BUBBLE TEA",
+        "description": "쫀득한 펄과 진한 흑당의 매력적인 조합.",
+        "mood": "재미있고 신나는 하루를 보내고 싶은 날 ✨",
+        "keyword": "즐거움",
+        "color": "#F8F0E8"
     },
-    "INFJ": {
-        "emoji": "🌙",
-        "place": "아이슬란드",
-        "color": "#E8F4FF",
-        "description": "고요한 자연 속에서 생각과 감성을 충전하는 여행",
-        "reason": "압도적인 자연 풍경과 한적한 분위기가 깊은 휴식을 선물해요.",
-        "tips": ["골든서클 방문", "온천에서 쉬기", "밤에는 오로라 관측하기"],
+    {
+        "emoji": "🍵",
+        "name": "말차 라떼",
+        "category": "MATCHA",
+        "description": "쌉싸름한 말차와 부드러운 우유가 만드는 편안한 맛.",
+        "mood": "잠시 모든 걸 내려놓고 쉬고 싶은 날 🌿",
+        "keyword": "차분함",
+        "color": "#EFF8EA"
     },
-    "INTJ": {
-        "emoji": "🔭",
-        "place": "스위스",
-        "color": "#EEF0FF",
-        "description": "효율적인 일정으로 자연과 도시를 모두 정복하는 여행",
-        "reason": "정확한 교통 시스템과 아름다운 자연을 체계적으로 즐길 수 있어요.",
-        "tips": ["스위스패스 활용", "융프라우요흐 방문", "열차 시간 미리 체크"],
+    {
+        "emoji": "🍋",
+        "name": "레몬 에이드",
+        "category": "ADE",
+        "description": "톡 쏘는 상큼함으로 기분까지 산뜻하게 만들어주는 음료.",
+        "mood": "새로운 에너지가 필요한 날 🍋",
+        "keyword": "상큼함",
+        "color": "#FFFBE8"
     },
-    "ISTP": {
-        "emoji": "🏄",
-        "place": "제주도",
-        "color": "#E6FAF5",
-        "description": "정해진 계획보다는 발길 닿는 대로 즐기는 여행",
-        "reason": "드라이브, 액티비티, 맛집 탐방까지 자유롭게 조합할 수 있어요.",
-        "tips": ["렌터카로 해안도로 달리기", "서핑 도전하기", "즉흥 맛집 탐방"],
+    {
+        "emoji": "☕",
+        "name": "바닐라 라떼",
+        "category": "COFFEE",
+        "description": "고소한 커피와 은은한 바닐라 향이 어우러진 클래식.",
+        "mood": "느긋한 카페 타임을 즐기고 싶은 날 🤎",
+        "keyword": "여유",
+        "color": "#F8F1EA"
     },
-    "ISFP": {
-        "emoji": "🌿",
-        "place": "다낭, 베트남",
-        "color": "#F0FFF4",
-        "description": "예쁜 풍경과 맛있는 음식으로 오감을 만족시키는 여행",
-        "reason": "바다, 카페, 마사지, 맛있는 음식까지 느긋하게 즐기기 좋아요.",
-        "tips": ["해변에서 일몰 보기", "로컬 카페 탐방", "마사지로 하루 마무리"],
+    {
+        "emoji": "🍑",
+        "name": "복숭아 아이스티",
+        "category": "TEA",
+        "description": "달콤한 복숭아 향이 가득한 시원하고 산뜻한 음료.",
+        "mood": "아무 생각 없이 편안하게 쉬고 싶은 날 🍑",
+        "keyword": "편안함",
+        "color": "#FFF1E8"
     },
-    "INFP": {
-        "emoji": "🧚",
-        "place": "포르투, 포르투갈",
-        "color": "#FFF5E6",
-        "description": "골목과 노을 속에서 나만의 이야기를 만드는 여행",
-        "reason": "낭만적인 골목과 오래된 건물, 아름다운 노을이 감성을 자극해요.",
-        "tips": ["도우루강 노을 감상", "골목 사진 찍기", "서점과 작은 카페 방문"],
+    {
+        "emoji": "🍫",
+        "name": "초코 밀크",
+        "category": "CHOCOLATE",
+        "description": "진하고 달콤한 초콜릿으로 행복을 충전하는 한 잔.",
+        "mood": "오늘은 확실하게 행복해지고 싶은 날 🍫",
+        "keyword": "행복",
+        "color": "#F7EEE9"
     },
-    "INTP": {
-        "emoji": "🪐",
-        "place": "런던, 영국",
-        "color": "#F3F0FF",
-        "description": "호기심 가득하게 도시 곳곳을 탐험하는 여행",
-        "reason": "박물관, 과학, 역사, 독특한 서점 등 탐구할 거리가 정말 많아요.",
-        "tips": ["자연사박물관 방문", "서점 투어", "동네별 테마를 정해 탐험"],
+    {
+        "emoji": "🫐",
+        "name": "블루베리 요거트",
+        "category": "YOGURT",
+        "description": "상큼한 블루베리와 부드러운 요거트의 산뜻한 조합.",
+        "mood": "가볍고 상쾌한 기분을 원하는 날 💜",
+        "keyword": "산뜻함",
+        "color": "#F2F0FF"
     },
-    "ESTP": {
-        "emoji": "🎢",
-        "place": "방콕, 태국",
-        "color": "#FFF1E6",
-        "description": "먹고 놀고 돌아다니며 순간순간을 즐기는 여행",
-        "reason": "활기찬 거리와 맛있는 음식, 다양한 액티비티가 기다리고 있어요.",
-        "tips": ["야시장 탐방", "길거리 음식 먹기", "툭툭 타보기"],
+    {
+        "emoji": "🍊",
+        "name": "자몽 에이드",
+        "category": "ADE",
+        "description": "쌉싸름하면서도 상큼한 자몽의 매력을 담은 한 잔.",
+        "mood": "평소와 다른 새로운 자극이 필요한 날 🧡",
+        "keyword": "새로움",
+        "color": "#FFF1EC"
     },
-    "ESFP": {
-        "emoji": "🍹",
-        "place": "하와이, 미국",
-        "color": "#E6F9FF",
-        "description": "햇살 아래에서 신나게 놀고 예쁜 사진도 남기는 여행",
-        "reason": "해변, 쇼핑, 액티비티, 맛집까지 즐거운 요소가 가득해요.",
-        "tips": ["와이키키 해변", "스노클링", "선셋 사진 남기기"],
+    {
+        "emoji": "🥥",
+        "name": "코코넛 스무디",
+        "category": "SMOOTHIE",
+        "description": "시원하고 부드러운 코코넛으로 잠깐의 휴가를 즐겨보세요.",
+        "mood": "일상에서 잠시 탈출하고 싶은 날 🏝️",
+        "keyword": "휴식",
+        "color": "#ECFAF7"
     },
-    "ENFP": {
-        "emoji": "🌈",
-        "place": "바르셀로나, 스페인",
-        "color": "#FFF0F6",
-        "description": "새로운 사람과 장소를 만나며 즉흥적으로 즐기는 여행",
-        "reason": "예술적인 건축물과 활기찬 거리, 맛있는 음식이 여행의 재미를 더해요.",
-        "tips": ["가우디 건축 투어", "보케리아 시장", "골목길 즉흥 탐험"],
+    {
+        "emoji": "🍵",
+        "name": "얼그레이 밀크티",
+        "category": "MILK TEA",
+        "description": "은은한 베르가못 향과 부드러운 우유의 우아한 조합.",
+        "mood": "조용하고 분위기 있는 시간이 필요한 날 ☁️",
+        "keyword": "우아함",
+        "color": "#F3F0EA"
     },
-    "ENTP": {
-        "emoji": "🚀",
-        "place": "뉴욕, 미국",
-        "color": "#F0F4FF",
-        "description": "새로운 자극과 재미있는 아이디어를 찾아 떠나는 여행",
-        "reason": "문화, 음식, 예술, 사람까지 매 순간 새로운 것을 발견할 수 있어요.",
-        "tips": ["브루클린 탐방", "전시회 찾아가기", "현지인 추천 장소 도전"],
+    {
+        "emoji": "🥭",
+        "name": "망고 스무디",
+        "category": "SMOOTHIE",
+        "description": "잘 익은 망고의 진한 달콤함을 가득 담은 스무디.",
+        "mood": "기분을 확 끌어올리고 싶은 날 🌞",
+        "keyword": "활력",
+        "color": "#FFF5D9"
     },
-    "ESTJ": {
-        "emoji": "🗺️",
-        "place": "싱가포르",
-        "color": "#EFFFF5",
-        "description": "알찬 일정으로 핵심 명소를 빠르게 즐기는 여행",
-        "reason": "교통이 편리하고 도시가 깔끔해 효율적으로 여행하기 좋아요.",
-        "tips": ["마리나베이 방문", "가든스 바이 더 베이", "동선을 미리 정하기"],
+    {
+        "emoji": "🍎",
+        "name": "애플 시나몬 티",
+        "category": "TEA",
+        "description": "사과의 달콤함과 시나몬 향이 포근하게 어우러져요.",
+        "mood": "포근한 하루를 보내고 싶은 날 🍂",
+        "keyword": "포근함",
+        "color": "#FFF1E8"
     },
-    "ESFJ": {
-        "emoji": "💐",
-        "place": "타이베이, 대만",
-        "color": "#FFF8E8",
-        "description": "맛있는 음식과 따뜻한 사람들을 만나는 여행",
-        "reason": "맛집, 야시장, 카페가 풍부하고 비교적 편안하게 돌아다닐 수 있어요.",
-        "tips": ["스린 야시장", "딤섬 먹기", "근교 온천 여행"],
+    {
+        "emoji": "🧊",
+        "name": "아이스 아메리카노",
+        "category": "COFFEE",
+        "description": "깔끔하고 시원하게 즐기는 가장 클래식한 커피.",
+        "mood": "정신을 번쩍 깨우고 싶은 날 ⚡",
+        "keyword": "집중",
+        "color": "#EEF4F8"
     },
-    "ENFJ": {
-        "emoji": "💛",
-        "place": "로마, 이탈리아",
-        "color": "#FFF0E0",
-        "description": "사람들과 추억을 만들며 역사와 문화를 즐기는 여행",
-        "reason": "이야기가 가득한 유적과 광장, 맛있는 음식이 함께하는 여행이에요.",
-        "tips": ["콜로세움 방문", "트레비 분수", "현지 레스토랑에서 식사"],
+    {
+        "emoji": "🍯",
+        "name": "허니 자몽티",
+        "category": "TEA",
+        "description": "상큼한 자몽에 달콤한 꿀을 더한 기분 좋은 티.",
+        "mood": "상쾌하면서도 달콤한 하루가 필요한 날 🍯",
+        "keyword": "균형",
+        "color": "#FFF8E5"
     },
-    "ENTJ": {
-        "emoji": "👑",
-        "place": "두바이, UAE",
-        "color": "#F2EEFF",
-        "description": "화려한 도시에서 새로운 경험을 빠르게 흡수하는 여행",
-        "reason": "현대적인 건축과 쇼핑, 미식, 다양한 체험을 한 번에 즐길 수 있어요.",
-        "tips": ["부르즈 할리파", "사막 사파리", "두바이몰 탐방"],
+    {
+        "emoji": "🍇",
+        "name": "청포도 에이드",
+        "category": "ADE",
+        "description": "청량한 청포도의 향을 가득 담은 산뜻한 에이드.",
+        "mood": "답답한 기분을 날려버리고 싶은 날 💚",
+        "keyword": "청량함",
+        "color": "#EEFFF1"
     },
-}
+    {
+        "emoji": "🌹",
+        "name": "로즈 티",
+        "category": "TEA",
+        "description": "은은한 장미 향으로 특별한 분위기를 만들어주는 티.",
+        "mood": "오늘은 조금 특별해지고 싶은 날 🌹",
+        "keyword": "로맨틱",
+        "color": "#FFF0F4"
+    },
+    {
+        "emoji": "🍌",
+        "name": "바나나 우유",
+        "category": "MILK",
+        "description": "달콤하고 부드러운 추억의 맛.",
+        "mood": "편안하고 친근한 기분이 필요한 날 💛",
+        "keyword": "편안함",
+        "color": "#FFFBE8"
+    },
+    {
+        "emoji": "🍓",
+        "name": "딸기 요거트 스무디",
+        "category": "SMOOTHIE",
+        "description": "상큼한 딸기와 부드러운 요거트가 어우러진 달콤한 음료.",
+        "mood": "상큼한 행복을 충전하고 싶은 날 💕",
+        "keyword": "상큼달콤",
+        "color": "#FFF1F6"
+    },
+    {
+        "emoji": "🍵",
+        "name": "자스민 그린티",
+        "category": "TEA",
+        "description": "은은한 꽃 향기가 가볍고 편안하게 퍼지는 차.",
+        "mood": "마음의 여유가 필요한 날 🌱",
+        "keyword": "힐링",
+        "color": "#F0F8EF"
+    },
+    {
+        "emoji": "🍯",
+        "name": "허니 밀크티",
+        "category": "MILK TEA",
+        "description": "부드러운 밀크티에 꿀의 달콤함을 더했어요.",
+        "mood": "따뜻한 위로가 필요한 날 🧸",
+        "keyword": "따뜻함",
+        "color": "#FFF4E5"
+    },
+    {
+        "emoji": "🍉",
+        "name": "수박 주스",
+        "category": "JUICE",
+        "description": "시원하고 달콤한 수박의 맛을 한 잔에 담았어요.",
+        "mood": "무더위를 시원하게 날리고 싶은 날 🌊",
+        "keyword": "시원함",
+        "color": "#FFF1F2"
+    },
+    {
+        "emoji": "🍍",
+        "name": "파인애플 에이드",
+        "category": "ADE",
+        "description": "톡 쏘는 탄산과 상큼한 파인애플의 조합.",
+        "mood": "신나는 일이 필요한 날 🎉",
+        "keyword": "통통튀는 매력",
+        "color": "#FFFBE6"
+    },
+    {
+        "emoji": "🥛",
+        "name": "딸기 초코 우유",
+        "category": "MILK",
+        "description": "딸기의 상큼함과 초콜릿의 달콤함을 한 번에.",
+        "mood": "오늘은 달달한 게 무조건 필요한 날 🍫",
+        "keyword": "달달함",
+        "color": "#FFF0F5"
+    },
+    {
+        "emoji": "🫖",
+        "name": "캐모마일 티",
+        "category": "TEA",
+        "description": "은은하고 부드러운 향으로 편안한 시간을 만들어줘요.",
+        "mood": "느긋하게 쉬어가고 싶은 날 🌙",
+        "keyword": "안정",
+        "color": "#FFFBEF"
+    },
+    {
+        "emoji": "🍒",
+        "name": "체리 에이드",
+        "category": "ADE",
+        "description": "새콤달콤한 체리의 매력을 담은 예쁜 에이드.",
+        "mood": "귀엽고 사랑스러운 하루를 보내고 싶은 날 🍒",
+        "keyword": "사랑스러움",
+        "color": "#FFF0F3"
+    },
+    {
+        "emoji": "🥝",
+        "name": "키위 주스",
+        "category": "JUICE",
+        "description": "톡톡 튀는 키위의 상큼함으로 입안을 깨워보세요.",
+        "mood": "새로운 시작이 필요한 날 🥝",
+        "keyword": "상쾌함",
+        "color": "#F0FFF0"
+    },
+    {
+        "emoji": "🍮",
+        "name": "카라멜 마키아토",
+        "category": "COFFEE",
+        "description": "진한 커피와 달콤한 카라멜이 만들어내는 매력적인 맛.",
+        "mood": "오늘은 나에게 작은 사치를 선물하고 싶은 날 ✨",
+        "keyword": "달콤한 사치",
+        "color": "#FFF3E7"
+    },
+    {
+        "emoji": "🥤",
+        "name": "콜드브루",
+        "category": "COFFEE",
+        "description": "부드럽고 깔끔한 풍미를 가진 시원한 커피.",
+        "mood": "깔끔하게 하루를 시작하고 싶은 날 🖤",
+        "keyword": "깔끔함",
+        "color": "#F1F3F5"
+    },
+    {
+        "emoji": "🌸",
+        "name": "벚꽃 라떼",
+        "category": "SPECIAL",
+        "description": "핑크빛 비주얼과 은은한 달콤함이 매력적인 특별한 라떼.",
+        "mood": "예쁜 하루를 보내고 싶은 날 🌸",
+        "keyword": "설렘",
+        "color": "#FFF1F7"
+    }
+]
 
-# -----------------------------
+# ==========================================
 # CSS
-# -----------------------------
+# ==========================================
 st.markdown("""
 <style>
-    .stApp {
-        background: linear-gradient(135deg, #FFF9FC 0%, #F3FAFF 100%);
-    }
 
-    .main-title {
-        text-align: center;
-        font-size: 42px;
-        font-weight: 800;
-        color: #FF6F91;
-        margin-top: 20px;
-        margin-bottom: 5px;
-    }
+@import url('https://fonts.googleapis.com/css2?family=Jua&family=Poppins:wght@400;500;600;700&display=swap');
 
-    .subtitle {
-        text-align: center;
-        color: #777;
-        font-size: 17px;
-        margin-bottom: 30px;
-    }
+.stApp {
+    background:
+        radial-gradient(circle at 5% 5%, #fff1f6 0, transparent 25%),
+        radial-gradient(circle at 95% 10%, #eaf8ff 0, transparent 25%),
+        linear-gradient(135deg, #ffffff 0%, #fafcff 100%);
+}
 
-    .card {
-        padding: 30px;
-        border-radius: 28px;
-        background: white;
-        box-shadow: 0 8px 30px rgba(255, 111, 145, 0.12);
-        text-align: center;
-        margin-top: 25px;
-    }
+/* Hero */
+.hero {
+    text-align: center;
+    padding: 38px 10px 25px;
+}
 
-    .place {
-        font-size: 34px;
-        font-weight: 800;
-        color: #444;
-        margin: 8px 0;
-    }
+.hero-icon {
+    font-size: 58px;
+}
 
-    .description {
-        color: #777;
-        font-size: 16px;
-        margin-bottom: 20px;
-    }
+.hero-title {
+    font-family: 'Jua', sans-serif;
+    font-size: 44px;
+    color: #222;
+    margin-top: 5px;
+}
 
-    .reason {
-        background: #FFF5F8;
-        border-radius: 18px;
-        padding: 18px;
-        color: #555;
-        line-height: 1.6;
-    }
+.hero-title span {
+    color: #FF7190;
+}
 
-    .tip {
-        background: #F5FAFF;
-        border-radius: 14px;
-        padding: 12px;
-        margin: 7px 0;
-        color: #555;
-    }
+.hero-subtitle {
+    color: #999;
+    font-size: 14px;
+    margin-top: 8px;
+}
 
-    .footer {
-        text-align: center;
-        color: #aaa;
-        margin-top: 35px;
-        font-size: 13px;
-    }
+/* Input card */
+.input-card {
+    background: rgba(255,255,255,0.95);
+    border: 1px solid #eeeeee;
+    border-radius: 25px;
+    padding: 28px;
+    box-shadow: 0 12px 35px rgba(30,40,60,0.07);
+}
+
+/* Result card */
+.result-card {
+    border-radius: 30px;
+    padding: 35px 25px;
+    text-align: center;
+    margin-top: 25px;
+    box-shadow: 0 15px 40px rgba(30,40,60,0.08);
+}
+
+.result-emoji {
+    font-size: 85px;
+}
+
+.result-small {
+    color: #999;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.result-name {
+    font-family: 'Jua', sans-serif;
+    font-size: 40px;
+    color: #222;
+    margin: 8px 0;
+}
+
+.result-description {
+    color: #666;
+    font-size: 15px;
+    margin-bottom: 22px;
+}
+
+.mood-box {
+    background: rgba(255,255,255,0.75);
+    border-radius: 18px;
+    padding: 17px;
+    color: #555;
+    font-size: 14px;
+}
+
+.keyword {
+    display: inline-block;
+    background: white;
+    padding: 7px 15px;
+    border-radius: 20px;
+    color: #FF7190;
+    font-weight: 700;
+    margin-top: 12px;
+}
+
+.footer {
+    text-align: center;
+    color: #aaa;
+    font-size: 12px;
+    margin: 35px 0 15px;
+}
+
+div.stButton > button {
+    border-radius: 15px;
+    border: 1px solid #eeeeee;
+    background: white;
+    color: #444;
+    font-weight: 700;
+    transition: 0.2s;
+}
+
+div.stButton > button:hover {
+    border-color: #ff7190;
+    color: #ff7190;
+    box-shadow: 0 6px 18px rgba(255,113,144,0.15);
+}
+
 </style>
 """, unsafe_allow_html=True)
 
-# -----------------------------
-# 화면
-# -----------------------------
+# ==========================================
+# 제목
+# ==========================================
+st.markdown("""
+<div class="hero">
+    <div class="hero-icon">🎂</div>
+
+    <div class="hero-title">
+        나의 <span>생일 음료</span>
+    </div>
+
+    <div class="hero-subtitle">
+        생일을 입력하면 30가지 음료 중 하나를 골라드려요 🧋
+    </div>
+</div>
+""", unsafe_allow_html=True)
+
+# ==========================================
+# 생일 입력
+# ==========================================
+st.markdown('<div class="input-card">', unsafe_allow_html=True)
+
 st.markdown(
-    '<div class="main-title">🌷 MBTI 여행처방</div>',
+    """
+    <div style="
+        text-align:center;
+        color:#555;
+        font-weight:600;
+        margin-bottom:12px;
+    ">
+        🎀 당신의 생일은 언제인가요?
+    </div>
+    """,
     unsafe_allow_html=True
 )
 
+birthday = st.date_input(
+    "생년월일",
+    value=date(2000, 1, 1),
+    min_value=date(1920, 1, 1),
+    max_value=date.today(),
+    format="YYYY-MM-DD"
+)
+
 st.markdown(
-    '<div class="subtitle">나의 MBTI에 딱 맞는 여행지를 찾아볼까요? ✈️</div>',
+    f"""
+    <div style="
+        text-align:center;
+        color:#FF7190;
+        font-size:13px;
+        font-weight:600;
+        margin-top:8px;
+    ">
+        🎁 {birthday.strftime('%Y년 %m월 %d일')}에 태어난 당신
+    </div>
+    """,
     unsafe_allow_html=True
 )
 
-mbti = st.selectbox(
-    "💌 나의 MBTI를 골라주세요",
-    ["MBTI를 선택해주세요"] + list(destinations.keys())
-)
+st.markdown('</div>', unsafe_allow_html=True)
 
-if mbti != "MBTI를 선택해주세요":
-    data = destinations[mbti]
+# ==========================================
+# 추천 버튼
+# ==========================================
+st.write("")
+
+_, center, _ = st.columns([1, 2, 1])
+
+with center:
+    recommend = st.button(
+        "✨ 나의 음료 확인하기",
+        use_container_width=True
+    )
+
+# ==========================================
+# 생일 → 30가지 음료 중 하나 선택
+# ==========================================
+if recommend:
+
+    # 생년월일의 모든 숫자를 이용해 결과 결정
+    birthday_number = int(
+        birthday.strftime("%Y%m%d")
+    )
+
+    drink_index = birthday_number % len(drinks)
+
+    st.session_state["drink"] = drinks[drink_index]
+    st.session_state["birthday"] = birthday
+
+# ==========================================
+# 결과
+# ==========================================
+if "drink" in st.session_state:
+
+    drink = st.session_state["drink"]
 
     st.markdown(
         f"""
-        <div class="card" style="background:{data['color']}">
-            <div style="font-size:65px;">{data['emoji']}</div>
-            <div style="font-size:18px;color:#FF6F91;font-weight:700;">
-                {mbti}에게 추천하는 여행지
+        <div class="result-card" style="background:{drink['color']}">
+
+            <div class="result-emoji">
+                {drink['emoji']}
             </div>
-            <div class="place">{data['place']}</div>
-            <div class="description">{data['description']}</div>
-            <div class="reason">
-                💡 <b>추천 이유</b><br>
-                {data['reason']}
+
+            <div class="result-small">
+                YOUR BIRTHDAY DRINK · {drink['category']}
             </div>
+
+            <div class="result-name">
+                {drink['name']}
+            </div>
+
+            <div class="result-description">
+                {drink['description']}
+            </div>
+
+            <div class="mood-box">
+                💗 <b>오늘의 음료 처방</b><br><br>
+                {drink['mood']}
+            </div>
+
+            <div class="keyword">
+                ✨ {drink['keyword']}
+            </div>
+
         </div>
         """,
         unsafe_allow_html=True
     )
 
-    st.markdown("### 🧳 여행 처방전")
+    st.write("")
 
-    for tip in data["tips"]:
-        st.markdown(
-            f'<div class="tip">🌼 {tip}</div>',
-            unsafe_allow_html=True
-        )
+    if st.button(
+        "🔄 다른 음료도 궁금해!",
+        use_container_width=True
+    ):
+        current_index = drinks.index(drink)
+        next_index = (current_index + 1) % len(drinks)
+
+        st.session_state["drink"] = drinks[next_index]
+
+        st.rerun()
+
+else:
 
     st.markdown(
-        '<div class="footer">당신의 다음 여행이 조금 더 설레기를 💕</div>',
+        """
+        <div style="
+            text-align:center;
+            color:#aaa;
+            padding:40px 10px;
+            font-size:14px;
+        ">
+            🎀 생일을 입력하고 버튼을 눌러주세요<br><br>
+            <span style="font-size:12px;">
+                30가지 음료 중 당신에게 어울리는 한 잔을 찾아드릴게요 🧋
+            </span>
+        </div>
+        """,
         unsafe_allow_html=True
     )
-else:
-    st.info("👆 위에서 MBTI를 선택하면 여행지가 나타나요!")
+
+# ==========================================
+# Footer
+# ==========================================
+st.markdown("""
+<div class="footer">
+    Made with 🧋 & a little birthday magic ✨
+</div>
+""", unsafe_allow_html=True)
