@@ -1,18 +1,14 @@
 import streamlit as st
 from datetime import date
 
-# ---------------------------------------
 # 페이지 설정
-# ---------------------------------------
 st.set_page_config(
-    page_title="오늘 뭐 마실까?",
+    page_title="오늘은 뭐 마실까?",
     page_icon="🧋",
     layout="centered"
 )
 
-# ---------------------------------------
 # 30가지 음료
-# ---------------------------------------
 drinks = [
     ("🍓", "딸기 라떼", "달콤하고 부드러운 딸기 한 잔", "달콤함"),
     ("🧋", "흑당 버블티", "쫀득한 펄과 진한 흑당의 조합", "즐거움"),
@@ -46,108 +42,17 @@ drinks = [
     ("🌸", "벚꽃 라떼", "핑크빛으로 특별한 분위기의 라떼", "설렘"),
 ]
 
-# ---------------------------------------
-# 기본 CSS
-# ---------------------------------------
-st.markdown("""
-<style>
-.stApp {
-    background-color: #fffafd;
-}
-
-.block-container {
-    max-width: 680px;
-    padding-top: 40px;
-}
-
-.title {
-    text-align: center;
-    font-size: 42px;
-    font-weight: 800;
-    color: #222222;
-}
-
-.title span {
-    color: #ff6f91;
-}
-
-.subtitle {
-    text-align: center;
-    color: #888888;
-    font-size: 15px;
-    line-height: 1.7;
-    margin-bottom: 30px;
-}
-
-.card {
-    background-color: #ffffff;
-    border-radius: 25px;
-    padding: 30px;
-    text-align: center;
-    border: 1px solid #eeeeee;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
-}
-
-.drink-emoji {
-    font-size: 75px;
-}
-
-.drink-name {
-    font-size: 36px;
-    font-weight: 800;
-    color: #222222;
-    margin: 10px 0;
-}
-
-.drink-description {
-    color: #666666;
-    font-size: 15px;
-    margin-bottom: 20px;
-}
-
-.keyword {
-    display: inline-block;
-    background-color: #fff0f5;
-    color: #ff6f91;
-    border-radius: 20px;
-    padding: 8px 16px;
-    font-weight: 700;
-}
-
-.footer {
-    text-align: center;
-    color: #aaaaaa;
-    font-size: 12px;
-    margin-top: 35px;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# ---------------------------------------
 # 제목
-# ---------------------------------------
-st.markdown(
-    """
-    <div class="title">
-        오늘은 <span>뭐 마실까?</span> 🧋
-    </div>
-    """,
-    unsafe_allow_html=True
+st.title("🧋 오늘은 뭐 마실까?")
+
+st.caption(
+    "생일을 알려주면 30가지 음료 중 "
+    "당신에게 어울리는 한 잔을 찾아드려요 ✨"
 )
 
-st.markdown(
-    """
-    <div class="subtitle">
-        생일을 알려주면<br>
-        30가지 음료 중 당신에게 어울리는 한 잔을 찾아드려요 ✨
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+st.divider()
 
-# ---------------------------------------
 # 생일 입력
-# ---------------------------------------
 st.subheader("🎂 생일을 알려주세요")
 
 birthday = st.date_input(
@@ -157,106 +62,59 @@ birthday = st.date_input(
     max_value=date.today()
 )
 
-# ---------------------------------------
 # 추천 버튼
-# ---------------------------------------
-st.write("")
+if st.button("✨ 나의 음료 찾기", use_container_width=True):
 
-recommend = st.button(
-    "✨ 나의 음료 찾기",
-    use_container_width=True
-)
-
-# ---------------------------------------
-# 추천 결과
-# ---------------------------------------
-if recommend:
-
-    # 생년월일을 숫자로 변환
     birthday_number = (
         birthday.year * 10000
         + birthday.month * 100
         + birthday.day
     )
 
-    # 0 ~ 29 중 하나 선택
     drink_number = birthday_number % 30
 
     st.session_state["drink_number"] = drink_number
 
-# ---------------------------------------
-# 결과 출력
-# ---------------------------------------
+# 결과
 if "drink_number" in st.session_state:
 
     number = st.session_state["drink_number"]
 
     emoji, name, description, keyword = drinks[number]
 
+    st.divider()
+
+    st.subheader("🎁 당신의 오늘의 음료")
+
     st.write("")
 
-    st.markdown(
-        f"""
-        <div class="card">
+    st.title(emoji)
 
-            <div class="drink-emoji">
-                {emoji}
-            </div>
+    st.header(name)
 
-            <div style="
-                color:#999999;
-                font-size:12px;
-                font-weight:700;
-                letter-spacing:2px;
-            ">
-                TODAY'S DRINK
-            </div>
+    st.write(description)
 
-            <div class="drink-name">
-                {name}
-            </div>
-
-            <div class="drink-description">
-                {description}
-            </div>
-
-            <div class="keyword">
-                ✨ 오늘의 키워드 · {keyword}
-            </div>
-
-        </div>
-        """,
-        unsafe_allow_html=True
+    st.success(
+        "✨ 오늘의 키워드 : " + keyword
     )
 
     st.write("")
 
-    # 다른 음료 보기
-    if st.button(
-        "🔄 다른 음료 보기",
-        use_container_width=True
-    ):
+    if st.button("🔄 다른 음료 보기", use_container_width=True):
 
         next_number = (number + 1) % 30
+
         st.session_state["drink_number"] = next_number
 
-        # rerun 없이도 버튼 클릭 후 아래 결과가 다시 계산되도록
         st.rerun()
 
 else:
 
     st.info(
-        "🎀 생일을 입력하고 '나의 음료 찾기' 버튼을 눌러주세요!"
+        "🎀 생일을 입력하고 "
+        "'나의 음료 찾기'를 눌러보세요!"
     )
 
-# ---------------------------------------
-# Footer
-# ---------------------------------------
-st.markdown(
-    """
-    <div class="footer">
-        🧋 오늘도 맛있는 하루 보내세요 ✨
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+st.divider()
+
+st.caption("🧋 오늘도 맛있는 하루 보내세요 ✨")
